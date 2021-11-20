@@ -23,14 +23,15 @@ def calculate_demographic_data(print_data=True):
     })
 
     # How many of each race are represented in this dataset? This should be a Pandas series with race names as the index labels.
-    race_count = df.groupby(["race"]).count()
+    race_count = df.value_counts(subset='race')
 
     # What is the average age of men?
     average_age_men = df.groupby(["sex"])["age"].mean()["Male"]
+    average_age_men = round(average_age_men, 1)
 
     # What is the percentage of people who have a Bachelor's degree?
     percentage_bachelors = (df.groupby(["education"]).count()['age'].loc['Bachelors'] / df.groupby(["education"]).count()['age'].sum())*100
-
+    percentage_bachelors = round(percentage_bachelors, 1)
     # What percentage of people with advanced education (`Bachelors`, `Masters`, or `Doctorate`) make more than 50K?
     # What percentage of people without advanced education make more than 50K?
 
@@ -40,10 +41,16 @@ def calculate_demographic_data(print_data=True):
     higher_education = 100* (df.query("education==@high_ed").education.count() / df.groupby(["education"]).count()['age'].sum())
     lower_education = 100 - higher_education
 
+    higher_education = round(higher_education, 1)
+    lower_education = round(lower_education,1)
+
     # percentage with salary >50K
     rich = df.query('salary == ">50K"')
     higher_education_rich = 100 * (rich.query("education==@high_ed").education.count() / df.query("education==@high_ed").education.count())
-    lower_education_rich = 100 * (rich.query("education!=@high_ed").education.count() / df.query("education==@high_ed").education.count())
+    lower_education_rich = 100 * (rich.query("education!=@high_ed").education.count() / df.query("education!=@high_ed").education.count())
+
+    higher_education_rich = round(higher_education_rich, 1)
+    lower_education_rich = round(lower_education_rich, 1)
 
     # What is the minimum number of hours a person works per week (hours-per-week feature)?
     min_work_hours = df["hoursperweek"].min()
@@ -75,6 +82,8 @@ def calculate_demographic_data(print_data=True):
 
     highest_earning_country = countries_rich_percentages['country'][countries_rich_percentages['richpercentage'].idxmax()]
     highest_earning_country_percentage = countries_rich_percentages['richpercentage'].max()
+
+    highest_earning_country_percentage = round(highest_earning_country_percentage, 1)
 
     # Identify the most popular occupation for those who earn >50K in India.
     top_IN_occupation = rich.query("nativecountry == 'India'").groupby(["occupation"]).count()['age'].idxmax()
